@@ -33,7 +33,7 @@ Videos Repo
 
 Non Sailing Channel Repo
 
-- [x] Upsert nonsailingchannels
+- [x] Upsert nonguitarchannels
 
 Blacklist
 

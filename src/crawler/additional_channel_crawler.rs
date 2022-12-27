@@ -34,13 +34,13 @@ impl AdditionalChannelCrawler {
 
             for additional_channel in additional_channels {
                 let channel_id = additional_channel.get_str("_id")?.to_string();
-                let ignore_sailing_terms = additional_channel.get_bool("ignoreSailingTerm")?;
+                let ignore_guitar_terms = additional_channel.get_bool("ignoreGuitarTerm")?;
 
                 info!("Send additional channel for crawling: {}", channel_id);
 
                 let cmd = CrawlChannelCommand {
                     channel_id: channel_id.clone(),
-                    ignore_sailing_terms,
+                    ignore_guitar_terms,
                 };
 
                 self.sender.send(cmd).await?;

@@ -12,7 +12,7 @@ use log::{debug, error, info, LevelFilter};
 use mongodb::{options::ClientOptions, Client};
 use repos::additional_channel_repo::AdditionalChannelRepository;
 use repos::blacklist_repo::BlacklistRepository;
-use repos::sailing_term_repo::SailingTermRepository;
+use repos::guitar_term_repo::SailingTermRepository;
 use simple_logger::SimpleLogger;
 use tokio::sync::mpsc::{channel, Receiver, Sender};
 use tokio::task::{self, JoinHandle};
@@ -23,7 +23,7 @@ use crate::{
         settings_repo::SettingsRepository, subscriber_repo::SubscriberRepository,
         view_repo::ViewRepository,
     },
-    services::{sailing_terms_service::SailingTermsService, youtube_service::YoutubeService},
+    services::{guitar_terms_service::SailingTermsService, youtube_service::YoutubeService},
 };
 use crate::{commands::crawl_videos_command::CrawlVideosCommand, models::config::Config};
 use crate::{
@@ -32,7 +32,7 @@ use crate::{
 use crate::{crawler::new_video_crawler::NewVideoCrawler, repos::channel_repo::ChannelRepository};
 use crate::{repos::apikeys_repo::ApiKeyRepository, scraper::channel_scraper::ChannelScraper};
 use crate::{
-    repos::non_sailing_channel_repo::NonSailingChannelRepository,
+    repos::non_guitar_channel_repo::NonSailingChannelRepository,
     scraper::video_scraper::VideoScraper,
 };
 
@@ -159,23 +159,23 @@ fn register_channel_discovery_crawler(
     }
 
     let channel_discovery_crawling_task = task::spawn(async move {
-        let sailing_terms = get_sailing_terms(&mongo_client, &config.environment).await;
+        let guitar_terms = get_guitar_terms(&mongo_client, &config.environment).await;
         let blacklisted_channel_ids =
             get_blacklisted_channels(&mongo_client, &config.environment).await;
 
         let channel_repo = ChannelRepository::new(&mongo_client, &config.environment);
         let settings_repo = SettingsRepository::new(&mongo_client, &config.environment);
         let apikey_repo = ApiKeyRepository::new(&mongo_client, &config.environment);
-        let non_sailing_channel_repo =
+        let non_guitar_channel_repo =
             NonSailingChannelRepository::new(&mongo_client, &config.environment);
         let additional_channel_repo =
             AdditionalChannelRepository::new(&mongo_client, &config.environment);
 
         let youtube_service = YoutubeService::new(apikey_repo);
-        let sailing_terms_service = SailingTermsService::new(
-            sailing_terms,
+        let guitar_terms_service = SailingTermsService::new(
+            guitar_terms,
             blacklisted_channel_ids,
-            non_sailing_channel_repo,
+            non_guitar_channel_repo,
         );
 
         let crawler = ChannelDiscoveryCrawler::new(
@@ -183,7 +183,7 @@ fn register_channel_discovery_crawler(
             channel_repo,
             settings_repo,
             youtube_service,
-            sailing_terms_service,
+            guitar_terms_service,
             additional_channel_repo,
         );
 
@@ -257,21 +257,21 @@ fn register_channel_scraper(
         info!("SCRAPER: Start channel scrape listener");
 
         let channel_repo = ChannelRepository::new(&mongo_client, &config.environment);
-        let non_sailing_channel_repo =
+        let non_guitar_channel_repo =
             NonSailingChannelRepository::new(&mongo_client, &config.environment);
         let view_repo = ViewRepository::new(&mongo_client, &config.environment);
         let subscriber_repo = SubscriberRepository::new(&mongo_client, &config.environment);
         let video_repo = VideoRepository::new(&mongo_client, &config.environment);
         let apikey_repo = ApiKeyRepository::new(&mongo_client, &config.environment);
 
-        let sailing_terms = get_sailing_terms(&mongo_client, &config.environment).await;
+        let guitar_terms = get_guitar_terms(&mongo_client, &config.environment).await;
         let blacklisted_channel_ids =
             get_blacklisted_channels(&mongo_client, &config.environment).await;
 
-        let sailing_terms_service = SailingTermsService::new(
-            sailing_terms,
+        let guitar_terms_service = SailingTermsService::new(
+            guitar_terms,
             blacklisted_channel_ids,
-            non_sailing_channel_repo,
+            non_guitar_channel_repo,
         );
 
         let scraper = ChannelScraper::new(
@@ -280,12 +280,12 @@ fn register_channel_scraper(
             subscriber_repo,
             video_repo,
             apikey_repo,
-            sailing_terms_service,
+            guitar_terms_service,
         );
 
         while let Some(cmd) = rx.recv().await {
             let result = scraper
-                .scrape(cmd.channel_id, cmd.ignore_sailing_terms)
+                .scrape(cmd.channel_id, cmd.ignore_guitar_terms)
                 .await;
 
             if let Err(e) = result {
@@ -322,11 +322,11 @@ fn register_video_scraper(
     tasks.push(video_scraper_task);
 }
 
-async fn get_sailing_terms(mongo_client: &Client, environment: &str) -> Vec<String> {
-    let sailing_term_repo = SailingTermRepository::new(&mongo_client, environment);
-    let sailing_terms = sailing_term_repo.get_all().await.unwrap();
+async fn get_guitar_terms(mongo_client: &Client, environment: &str) -> Vec<String> {
+    let guitar_term_repo = SailingTermRepository::new(&mongo_client, environment);
+    let guitar_terms = guitar_term_repo.get_all().await.unwrap();
 
-    sailing_terms
+    guitar_terms
 }
 
 async fn get_blacklisted_channels(mongo_client: &Client, environment: &str) -> Vec<String> {
