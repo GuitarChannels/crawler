@@ -11,7 +11,7 @@ use crate::{
         subscriber_repo::SubscriberRepository, video_repo::VideoRepository,
         view_repo::ViewRepository,
     },
-    services::{sailing_terms_service::SailingTermsService, youtube_service::YoutubeService},
+    services::{guitar_terms_service::GuitarTermsService, youtube_service::YoutubeService},
     utils::keyword_utils,
 };
 
@@ -21,7 +21,7 @@ pub struct ChannelScraper {
     subscriber_repo: SubscriberRepository,
     video_repo: VideoRepository,
     youtube_service: YoutubeService,
-    sailing_terms_service: SailingTermsService,
+    guitar_terms_service: GuitarTermsService,
 }
 
 impl ChannelScraper {
@@ -31,7 +31,7 @@ impl ChannelScraper {
         subscriber_repo: SubscriberRepository,
         video_repo: VideoRepository,
         apikey_repo: ApiKeyRepository,
-        sailing_terms_service: SailingTermsService,
+        guitar_terms_service: GuitarTermsService,
     ) -> ChannelScraper {
         ChannelScraper {
             channel_repo,
@@ -39,15 +39,11 @@ impl ChannelScraper {
             subscriber_repo,
             video_repo,
             youtube_service: YoutubeService::new(apikey_repo),
-            sailing_terms_service,
+            guitar_terms_service,
         }
     }
 
-    pub async fn scrape(
-        &self,
-        channel_id: String,
-        ignore_sailing_terms: bool,
-    ) -> Result<(), Error> {
+    pub async fn scrape(&self, channel_id: String, ignore_guitar_terms: bool) -> Result<(), Error> {
         info!("Start scraping channel {}", channel_id);
 
         let channel_details = match self.load_channel_details(&channel_id).await {
@@ -57,17 +53,17 @@ impl ChannelScraper {
 
         let description = channel_details.snippet.description.unwrap_or_default();
 
-        let sailing_term_result = self
-            .sailing_terms_service
-            .has_sailing_term(
+        let guitar_term_result = self
+            .guitar_terms_service
+            .has_guitar_term(
                 &channel_id,
                 &channel_details.snippet.title,
                 &description,
-                ignore_sailing_terms,
+                ignore_guitar_terms,
             )
             .await;
 
-        if sailing_term_result.is_blacklisted {
+        if guitar_term_result.is_blacklisted {
             self.delete_channel(&channel_id).await?;
         }
 
@@ -77,7 +73,7 @@ impl ChannelScraper {
             .parse::<i64>()
             .unwrap_or(0);
 
-        if sailing_term_result.has_sailing_term == false || view_count == 0 {
+        if guitar_term_result.has_guitar_term == false || view_count == 0 {
             return Ok(());
         }
 

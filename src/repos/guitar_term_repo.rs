@@ -5,16 +5,16 @@ use mongodb::{Client, Collection};
 
 use crate::utils::db::get_db_name;
 
-pub struct SailingTermRepository {
+pub struct GuitarTermRepository {
     collection: Collection<Document>,
 }
 
-impl SailingTermRepository {
-    pub fn new(client: &Client, environment: &str) -> SailingTermRepository {
+impl GuitarTermRepository {
+    pub fn new(client: &Client, environment: &str) -> GuitarTermRepository {
         let db = client.database(&get_db_name(&environment));
-        let feeds = db.collection::<Document>("sailingterms");
+        let feeds = db.collection::<Document>("guitarterms");
 
-        SailingTermRepository { collection: feeds }
+        GuitarTermRepository { collection: feeds }
     }
 
     pub async fn get_all(&self) -> Result<Vec<String>, Error> {
@@ -23,9 +23,9 @@ impl SailingTermRepository {
             .build();
 
         let cursor = self.collection.find(None, find_options).await?;
-        let sailing_terms: Vec<Document> = cursor.try_collect().await?;
+        let guitar_terms: Vec<Document> = cursor.try_collect().await?;
 
-        let ids: Vec<String> = sailing_terms
+        let ids: Vec<String> = guitar_terms
             .iter()
             .map(|doc| doc.get_str("_id").unwrap().to_string())
             .collect();

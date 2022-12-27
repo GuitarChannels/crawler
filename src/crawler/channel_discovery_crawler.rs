@@ -1,4 +1,4 @@
-// https://github.com/sailingchannels/crawler/blob/76b4442032e9062537576e98e37180c01293b412/discovery.py
+// https://github.com/guitarchannels/crawler/blob/76b4442032e9062537576e98e37180c01293b412/discovery.py
 
 use crate::{
     commands::crawl_channel_command::CrawlChannelCommand,
@@ -6,7 +6,7 @@ use crate::{
         additional_channel_repo::AdditionalChannelRepository, channel_repo::ChannelRepository,
         settings_repo::SettingsRepository,
     },
-    services::{sailing_terms_service::SailingTermsService, youtube_service::YoutubeService},
+    services::{guitar_terms_service::GuitarTermsService, youtube_service::YoutubeService},
     utils::consts::ONE_DAYS_IN_SECONDS,
 };
 use anyhow::Error;
@@ -21,7 +21,7 @@ pub struct ChannelDiscoveryCrawler {
     channel_repo: ChannelRepository,
     settings_repo: SettingsRepository,
     youtube_service: YoutubeService,
-    sailing_terms_service: SailingTermsService,
+    guitar_terms_service: GuitarTermsService,
     additional_channel_repo: AdditionalChannelRepository,
 }
 
@@ -31,7 +31,7 @@ impl ChannelDiscoveryCrawler {
         channel_repo: ChannelRepository,
         settings_repo: SettingsRepository,
         youtube_service: YoutubeService,
-        sailing_terms_service: SailingTermsService,
+        guitar_terms_service: GuitarTermsService,
         additional_channel_repo: AdditionalChannelRepository,
     ) -> ChannelDiscoveryCrawler {
         ChannelDiscoveryCrawler {
@@ -39,7 +39,7 @@ impl ChannelDiscoveryCrawler {
             channel_repo,
             settings_repo,
             youtube_service,
-            sailing_terms_service,
+            guitar_terms_service,
             additional_channel_repo,
         }
     }
@@ -61,9 +61,9 @@ impl ChannelDiscoveryCrawler {
                         .unwrap_or(vec![]);
 
                     for snippet in subscriptions {
-                        let sailing_terms_result = self
-                            .sailing_terms_service
-                            .has_sailing_term(
+                        let guitar_terms_result = self
+                            .guitar_terms_service
+                            .has_guitar_term(
                                 &snippet.channel_id,
                                 &snippet.title,
                                 &snippet.description,
@@ -75,20 +75,20 @@ impl ChannelDiscoveryCrawler {
                             .is_channel_newly_discovered(&snippet.channel_id)
                             .await?;
 
-                        let is_not_non_sailing_channel = self
-                            .sailing_terms_service
-                            .is_not_listed_as_non_sailing_channel(&snippet.channel_id)
+                        let is_not_non_guitar_channel = self
+                            .guitar_terms_service
+                            .is_not_listed_as_non_guitar_channel(&snippet.channel_id)
                             .await;
 
                         if is_newly_discovered
-                            && is_not_non_sailing_channel
-                            && sailing_terms_result.has_sailing_term
+                            && is_not_non_guitar_channel
+                            && guitar_terms_result.has_guitar_term
                         {
                             info!("Send channel for crawling: {}", snippet.channel_id);
 
                             let cmd = CrawlChannelCommand {
                                 channel_id: snippet.channel_id.clone(),
-                                ignore_sailing_terms: false,
+                                ignore_guitar_terms: false,
                             };
 
                             self.sender.send(cmd).await?;

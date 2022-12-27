@@ -43,7 +43,7 @@ impl ChannelUpdateCrawler {
             for channel_id in channel_ids {
                 let cmd = CrawlChannelCommand {
                     channel_id,
-                    ignore_sailing_terms: false,
+                    ignore_guitar_terms: false,
                 };
 
                 self.sender.send(cmd).await?;

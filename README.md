@@ -1,4 +1,4 @@
-# Sailing Channels ⛵️ Crawler
+# Guitar Channels ⛵️ Crawler
 
 ## Repos
 
@@ -31,7 +31,7 @@ Videos Repo
 - [x] Upsert
 - [x] Delete videos by channel
 
-Non Sailing Channel Repo
+Non Guitar Channel Repo
 
 - [x] Upsert nonguitarchannels
 
@@ -39,6 +39,6 @@ Blacklist
 
 - [x] Get all
 
-Sailing Terms
+Guitar Terms
 
 - [x] Get all

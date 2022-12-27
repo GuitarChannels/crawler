@@ -4,16 +4,16 @@ use mongodb::{Client, Collection};
 
 use crate::utils::db::get_db_name;
 
-pub struct NonSailingChannelRepository {
+pub struct NonGuitarChannelRepository {
     collection: Collection<Document>,
 }
 
-impl NonSailingChannelRepository {
-    pub fn new(client: &Client, environment: &str) -> NonSailingChannelRepository {
+impl NonGuitarChannelRepository {
+    pub fn new(client: &Client, environment: &str) -> NonGuitarChannelRepository {
         let db = client.database(&get_db_name(&environment));
-        let channels = db.collection::<Document>("nonsailingchannels");
+        let channels = db.collection::<Document>("nonguitarchannels");
 
-        NonSailingChannelRepository {
+        NonGuitarChannelRepository {
             collection: channels,
         }
     }
