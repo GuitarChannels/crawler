@@ -121,7 +121,9 @@ impl ChannelScraper {
                 channel.insert("language", language);
                 channel.insert("detectedLanguage", true);
             }
-            None => {}
+            None => {
+                channel.insert("language", "en");
+            }
         }
 
         self.store_view_count(&channel_id, view_count).await;
