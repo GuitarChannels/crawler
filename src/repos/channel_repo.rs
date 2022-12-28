@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use anyhow::Error;
 use chrono::Utc;
 use futures::stream::TryStreamExt;
@@ -115,12 +116,15 @@ impl ChannelRepository {
         let channel = self
             .collection
             .find_one(doc! {"_id": id}, find_one_options)
-            .await?
-            .unwrap();
+            .await?;
 
-        let detected_language = channel.get_str("detectedLanguage")?;
-
-        Ok(detected_language.to_string())
+        match channel {
+            Some(c) => {
+                let detected_language = c.get_str("detectedLanguage")?;
+                Ok(detected_language.to_string())
+            }
+            None => Err(anyhow!("No channel found for id {}!", id)),
+        }
     }
 
     pub async fn delete(&self, id: &str) -> Result<(), anyhow::Error> {
