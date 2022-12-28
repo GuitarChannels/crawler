@@ -72,7 +72,7 @@ impl ChannelDiscoveryCrawler {
                             .await;
 
                         let is_newly_discovered =
-                            self.is_channel_newly_discovered(&channel_id).await?;
+                            self.is_channel_newly_discovered(&sub_channel_id).await?;
 
                         let is_not_non_guitar_channel = self
                             .guitar_terms_service
