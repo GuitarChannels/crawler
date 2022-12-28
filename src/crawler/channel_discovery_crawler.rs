@@ -59,39 +59,40 @@ impl ChannelDiscoveryCrawler {
                         .unwrap_or(vec![]);
 
                     for snippet in subscriptions {
+                        let sub_channel_id = snippet.resource_id.channel_id;
+
                         let guitar_terms_result = self
                             .guitar_terms_service
                             .has_guitar_term(
-                                &snippet.channel_id,
+                                &sub_channel_id,
                                 &snippet.title,
                                 &snippet.description,
                                 false,
                             )
                             .await;
 
-                        let is_newly_discovered = self
-                            .is_channel_newly_discovered(&snippet.channel_id)
-                            .await?;
+                        let is_newly_discovered =
+                            self.is_channel_newly_discovered(&channel_id).await?;
 
                         let is_not_non_guitar_channel = self
                             .guitar_terms_service
-                            .is_not_listed_as_non_guitar_channel(&snippet.channel_id)
+                            .is_not_listed_as_non_guitar_channel(&sub_channel_id)
                             .await;
 
                         if is_newly_discovered
                             && is_not_non_guitar_channel
                             && guitar_terms_result.has_guitar_term
                         {
-                            info!("Send channel for crawling: {}", snippet.channel_id);
+                            info!("Send channel for crawling: {}", sub_channel_id);
 
                             let cmd = CrawlChannelCommand {
-                                channel_id: snippet.channel_id.clone(),
+                                channel_id: sub_channel_id.clone(),
                                 ignore_guitar_terms: false,
                             };
 
                             self.sender.send(cmd).await?;
                         } else {
-                            info!("Channel {} does not qualify as a newly discovered channel (is_newly_discovered = {}, is_not_non_guitar_channel = {}, has_guitar_term = {})", snippet.channel_id, is_newly_discovered, is_not_non_guitar_channel, guitar_terms_result.has_guitar_term);
+                            info!("Channel {} does not qualify as a newly discovered channel (is_newly_discovered = {}, is_not_non_guitar_channel = {}, has_guitar_term = {})", sub_channel_id, is_newly_discovered, is_not_non_guitar_channel, guitar_terms_result.has_guitar_term);
                         }
                     }
                 }
