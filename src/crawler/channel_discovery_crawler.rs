@@ -1,5 +1,3 @@
-// https://github.com/guitarchannels/crawler/blob/76b4442032e9062537576e98e37180c01293b412/discovery.py
-
 use crate::{
     commands::crawl_channel_command::CrawlChannelCommand,
     repos::{
