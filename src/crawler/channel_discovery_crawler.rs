@@ -90,6 +90,8 @@ impl ChannelDiscoveryCrawler {
                             };
 
                             self.sender.send(cmd).await?;
+                        } else {
+                            info!("Channel {} does not qualify as a newly discovered channel (is_newly_discovered = {}, is_not_non_guitar_channel = {}, has_guitar_term = {})", snippet.channel_id, is_newly_discovered, is_not_non_guitar_channel, guitar_terms_result.has_guitar_term);
                         }
                     }
                 }
