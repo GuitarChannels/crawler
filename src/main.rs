@@ -112,15 +112,17 @@ pub async fn main() -> Result<(), anyhow::Error> {
         video_scraper_tx.clone(),
     );
 
-    await_all(tasks).await;
+    await_all(tasks).await?;
 
     Ok(())
 }
 
-async fn await_all(tasks: Vec<JoinHandle<()>>) {
+async fn await_all(tasks: Vec<JoinHandle<()>>) -> Result<(), anyhow::Error> {
     for task in tasks {
-        task.await.expect("Panic in task");
+        task.await?;
     }
+
+    Ok(())
 }
 
 fn register_additional_channel_crawler(
